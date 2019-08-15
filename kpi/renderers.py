@@ -69,7 +69,7 @@ class SubmissionGeoJsonRenderer(renderers.BaseRenderer):
             # Which of these do we want? Would it be better to run this through
             # ExportTask, just synchronously?
             #'group_sep': group_sep,
-            lang='_xml',
+            lang='_xml', # must be configurable, but also: don't we have this as a constant?
             hierarchy_in_labels=True,
             #'copy_fields': self.COPY_FIELDS,
             #'force_index': True,
@@ -80,14 +80,15 @@ class SubmissionGeoJsonRenderer(renderers.BaseRenderer):
             # No geo question specified; use the first one in the latest
             # version of the form
             latest_version = pack.versions.values()[-1]
-            geo_questions = filter(
+            geo_questions = filter( # use a list comprehension
                 lambda field: field.data_type in ('geopoint', 'geotrace'),
-                latest_version.sections.values()[0].fields.values()
+                latest_version.sections.values()[0].fields.values() # wow, this doesn't work in python3
+                                                                    # use six?
             )
             try:
                 geo_question_name = geo_questions[0].name
             except IndexError:
-                geo_question_name = None
+                geo_question_name = None # ok to let formpack handle this or complain here?
         return ''.join(
             export.to_geojson(submission_stream, geo_question_name)
         )
